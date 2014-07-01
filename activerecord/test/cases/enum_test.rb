@@ -1,5 +1,7 @@
 require 'cases/helper'
 require 'models/book'
+require 'models/admin'
+require 'models/admin/user'
 
 class EnumTest < ActiveRecord::TestCase
   fixtures :books
@@ -285,5 +287,16 @@ class EnumTest < ActiveRecord::TestCase
     book2 = subklass2.drafted.create!
     book2.status = :uploaded
     assert_equal ['drafted', 'uploaded'], book2.status_change
+  end
+
+  test "enums work with stored attributes" do
+    @john = Admin::User.create!(:name => 'John Doe', :color => 'black', :remember_login => true, :height => 'tall', :is_a_good_guy => true)
+
+    klass = Class.new(Admin::User) do
+      enum favorite_food: [:chicken_nuggets, :godmothers]
+    end
+
+    user = klass.new favorite_food: :chicken_nuggets
+    assert user.save
   end
 end
